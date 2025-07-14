@@ -5,8 +5,8 @@
 replicaCount: 1
 
 image:
-  repository: fairfaxmedia/snappass
-  tag: 1.6.0
+  repository: ghcr.io/nine-entertainment/snappass
+  tag: v1.7.2
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
