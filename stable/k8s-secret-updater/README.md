@@ -49,6 +49,7 @@ See the [k8s-secret-updater](https://github.com/fairfaxmedia/k8s-secret-updater)
 
 | Parameter               | Default                      | Description |
 | ----------------------- | ---------------------------- | ----------- |
+| `ingress.enabled`       | `true`                       | Create the Ingress resource |
 | `ingress.name`          | `secret-updater`             | ..          |
 | `ingress.containerPort` | `80`                         | ..          |
 | `ingress.host`          | `secret-updater.example.com` | ..          |

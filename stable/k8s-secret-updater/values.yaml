@@ -12,6 +12,7 @@ service:
 serviceAccount:
   create: false
 ingress:
+  enabled: true
   name: secret-updater
   containerPort: 80
   host: secret-updater.example.com

@@ -1,3 +1,4 @@
+{{- if .Values.ingress.enabled }}
 apiVersion: {{ .Values.apiVersionOverrides.ingress }}
 kind: Ingress
 metadata:
@@ -25,3 +26,4 @@ spec:
               number: {{ .Values.ingress.containerPort }}
         path: {{ .Values.ingress.path }}
         pathType: {{ .Values.ingress.pathType }}
+{{- end }}
