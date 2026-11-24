@@ -7,6 +7,10 @@ metadata:
     helm.sh/chart: {{ include "chart.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
+  {{- with .Values.deploymentAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -33,9 +37,11 @@ spec:
             readOnlyRootFilesystem: false
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.existingSecret }}
           envFrom:
           - secretRef:
               name: {{ .Values.existingSecret }}
+          {{- end }}
           env:
           - name: KAFKA_BROKERCONNECT
             value: "{{ .Values.kafka.brokerConnect }}"
@@ -55,6 +61,10 @@ spec:
 {{- else }}
             value: "{{ .Values.cmdArgs }}"
 {{- end }}
+          {{- range $name, $value := .Values.extraEnv }}
+          - name: {{ $name }}
+            value: {{ $value | quote }}
+          {{- end }}
           ports:
             - name: http
               containerPort: 9000
@@ -75,6 +85,18 @@ spec:
             timeoutSeconds: 10
           resources:
 {{ toYaml .Values.resources | indent 12 }}
+          {{- if or .Values.mountProtoDesc.enabled .Values.secretMounts }}
+          volumeMounts:
+            {{- if .Values.mountProtoDesc.enabled }}
+            - mountPath: /protodesc/
+              name: proto-desc
+            {{- end }}
+            {{- range $name, $mount := .Values.secretMounts }}
+            - name: {{ $name }}
+              mountPath: {{ $mount.mountPath }}
+              readOnly: true
+            {{- end }}
+          {{- end }}
     {{- with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
@@ -87,13 +109,17 @@ spec:
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
-{{- if .Values.mountProtoDesc.enabled }}
-          volumeMounts:
-            - mountPath: /protodesc/
-              name: proto-desc
+    {{- if or .Values.mountProtoDesc.enabled .Values.secretMounts }}
       volumes:
+        {{- if .Values.mountProtoDesc.enabled }}
         - name: proto-desc
           hostPath:
             path: {{ .Values.mountProtoDesc.hostPath }}
             type: Directory
-{{- end }}
+        {{- end }}
+        {{- range $name, $mount := .Values.secretMounts }}
+        - name: {{ $name }}
+          secret:
+            secretName: {{ $mount.secretName }}
+        {{- end }}
+    {{- end }}
