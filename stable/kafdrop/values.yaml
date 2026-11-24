@@ -14,7 +14,7 @@ kafka:
   # @default -- Defaults to localhost:9092.
   brokerConnect: localhost:9092
 
-# -- Existing k8s secrect use to set kafdrop environment variables
+# -- Existing k8s secret used to set kafdrop environment variables. Leave empty to disable envFrom.
 existingSecret: ""
 
 jvm:
@@ -81,6 +81,21 @@ affinity: {}
 
 # -- Pod annotations.
 podAnnotations: {}
+
+# -- Deployment annotations (e.g. secrets.doppler.com/reload: "true").
+deploymentAnnotations: {}
+
+# -- Additional environment variables for the container, as NAME: value pairs.
+extraEnv: {}
+  # FOO: bar
+
+# -- Secrets to mount read-only into the container, keyed by volume name.
+# Each entry creates both the pod volume and the container volume mount.
+# @default -- `{}`
+secretMounts: {}
+  # secrets:
+  #   secretName: kafdrop-doppler
+  #   mountPath: /etc/kafdrop-secrets
 
 mountProtoDesc:
   # -- Mount the descriptor files folder for Protobuf support.
